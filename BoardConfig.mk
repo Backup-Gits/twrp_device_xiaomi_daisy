@@ -1,6 +1,8 @@
 #
 # Copyright 2016 The Android Open Source Project
 #
+# Copyright (C) 2018-2019 OrangeFox Recovery Project
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -22,6 +24,7 @@
 # bitrot and build breakages. Building a component unconditionally does
 # *not* include it on all devices, so it is safe even with hardware-specific
 # components.
+#
 
 DEVICE_PATH := device/xiaomi/sakura
 
@@ -50,7 +53,25 @@ BOARD_KERNEL_CMDLINE := androidboot.hardware=qcom msm_rtb.filter=0x237 ehci-hcd.
 BOARD_KERNEL_PAGESIZE := 4096
 BOARD_KERNEL_TAGS_OFFSET := 0x00000100
 BOARD_RAMDISK_OFFSET := 0x01000000
-TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/zImage-dtb
+
+ifeq ($(FOX_BUILD_FULL_KERNEL_SOURCES),)
+FOX_BUILD_FULL_KERNEL_SOURCES := 1
+endif
+
+ifeq ($(FOX_BUILD_FULL_KERNEL_SOURCES),1)
+  TARGET_KERNEL_SOURCE := kernel/xiaomi/sakura
+  TARGET_KERNEL_CONFIG := sakura-perf_defconfig
+  BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
+else # FOX_BUILD_FULL_KERNEL_SOURCES==1
+  TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image.gz-dtb
+  TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image-Genom-pie-caf-v134.gz-dtb
+ifeq ($(FOX_USE_STOCK_KERNEL),1)  
+  TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image-stock-20190109.gz-dtb
+endif  
+  PRODUCT_COPY_FILES += \
+    $(TARGET_PREBUILT_KERNEL):kernel
+endif  # FOX_BUILD_FULL_KERNEL_SOURCES==1
+
 
 # Platform
 TARGET_BOARD_PLATFORM := msm8953
@@ -72,7 +93,7 @@ TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
 
 # TWRP Configuration
-TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/twrp.fstab
+TARGET_RECOVERY_FSTAB := $(DEVICE_PATH)/recovery.fstab
 RECOVERY_SDCARD_ON_DATA := true
 TARGET_RECOVERY_QCOM_RTC_FIX := true
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/devices/soc/7000000.ssusb/7000000.dwc3/gadget/lun0/file"
@@ -81,13 +102,24 @@ TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_EXCLUDE_SUPERSU := true
 TW_EXTRA_LANGUAGES := true
 TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_FBE := true
+TARGET_HW_DISK_ENCRYPTION := true
 TW_INCLUDE_NTFS_3G := true
 TW_SCREEN_BLANK_ON_BOOT := true
 TW_THEME := portrait_hdpi
 
 # Disable Mouse Cursor
 TW_INPUT_BLACKLIST := "hbtp_vm"
+TW_INCLUDE_FUSE_EXFAT := true
+TARGET_USES_64_BIT_BINDER := true
 
 # Treble
 BOARD_NEEDS_VENDORIMAGE_SYMLINK := false
 TARGET_COPY_OUT_VENDOR := vendor
+#
+TW_DEFAULT_BRIGHTNESS := 255
+ifeq ($(FOX_USE_STOCK_KERNEL),1)
+TW_DEFAULT_BRIGHTNESS := 1850
+TW_MAX_BRIGHTNESS := 4095
+endif
+#
