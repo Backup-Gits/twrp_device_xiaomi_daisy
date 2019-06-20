@@ -63,11 +63,8 @@ ifeq ($(FOX_BUILD_FULL_KERNEL_SOURCES),1)
   TARGET_KERNEL_CONFIG := sakura-perf_defconfig
   BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
 else # FOX_BUILD_FULL_KERNEL_SOURCES==1
-  TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image.gz-dtb
   TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image-Genom-pie-caf-v134.gz-dtb
-ifeq ($(FOX_USE_STOCK_KERNEL),1)  
-  TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image-stock-20190109.gz-dtb
-endif  
+#  TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image.gz-dtb
   PRODUCT_COPY_FILES += \
     $(TARGET_PREBUILT_KERNEL):kernel
 endif  # FOX_BUILD_FULL_KERNEL_SOURCES==1
@@ -101,12 +98,15 @@ TW_BRIGHTNESS_PATH := "/sys/class/leds/lcd-backlight/brightness"
 TW_EXCLUDE_DEFAULT_USB_INIT := true
 TW_EXCLUDE_SUPERSU := true
 TW_EXTRA_LANGUAGES := true
-TW_INCLUDE_CRYPTO := true
-TW_INCLUDE_FBE := true
-TARGET_HW_DISK_ENCRYPTION := true
+TW_DEFAULT_LANGUAGE := en
 TW_INCLUDE_NTFS_3G := true
 TW_SCREEN_BLANK_ON_BOOT := true
 TW_THEME := portrait_hdpi
+
+# crypto
+TW_INCLUDE_CRYPTO := true
+TW_INCLUDE_FBE := true
+TARGET_HW_DISK_ENCRYPTION := true
 
 # Disable Mouse Cursor
 TW_INPUT_BLACKLIST := "hbtp_vm"
