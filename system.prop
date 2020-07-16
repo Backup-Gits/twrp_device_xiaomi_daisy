@@ -1,0 +1,10 @@
+ro.product.brand=xiaomi
+ro.product.name=sakura
+ro.product.device=sakura
+ro.product.mod_device=sakura_india
+ro.build.product=sakura
+ro.treble.enabled=true
+#
+ro.product.board=MSM8953
+ro.board.platform=msm8953
+#

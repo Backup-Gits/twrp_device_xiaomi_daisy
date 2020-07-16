@@ -41,9 +41,15 @@ TARGET_2ND_CPU_ABI := armeabi-v7a
 TARGET_2ND_CPU_ABI2 := armeabi
 TARGET_2ND_CPU_VARIANT := cortex-a53
 
+ENABLE_CPUSETS := true
+ENABLE_SCHEDBOOST := true
+
 # Bootloader
 TARGET_BOOTLOADER_BOARD_NAME := MSM8953
 TARGET_NO_BOOTLOADER := true
+
+# System As Root
+BOARD_BUILD_SYSTEM_ROOT_IMAGE := true
 
 # Kernel
 BOARD_KERNEL_CMDLINE += androidboot.hardware=qcom msm_rtb.filter=0x237
@@ -51,14 +57,22 @@ BOARD_KERNEL_CMDLINE += ehci-hcd.park=3
 BOARD_KERNEL_CMDLINE += lpm_levels.sleep_disabled=1
 BOARD_KERNEL_CMDLINE += androidboot.bootdevice=7824900.sdhci
 BOARD_KERNEL_CMDLINE += androidboot.selinux=permissive
-
-BOARD_KERNEL_BASE        := 0x80000000
-BOARD_KERNEL_PAGESIZE    := 2048
-BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
-TARGET_KERNEL_VERSION := 4.9
-TARGET_KERNEL_SOURCE := kernel/xiaomi/sakura
-TARGET_KERNEL_CONFIG := sakura_defconfig
+BOARD_KERNEL_BASE := 0x80000000
+BOARD_KERNEL_PAGESIZE := 2048
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01000000 --tags_offset 0x00000100
+TARGET_KERNEL_VERSION := 4.9
+TARGET_KERNEL_ARCH := arm64
+TARGET_KERNEL_HEADER_ARCH := arm64
+
+ifeq ($(FOX_BUILD_FULL_KERNEL_SOURCES),1)
+  TARGET_KERNEL_SOURCE := kernel/xiaomi/sakura
+  BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
+  TARGET_KERNEL_CONFIG := sakura_defconfig
+else
+  TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/kernel
+PRODUCT_COPY_FILES += \
+    $(TARGET_PREBUILT_KERNEL):kernel
+endif
 
 # Crypto
 TARGET_CRYPTFS_HW_PATH := vendor/qcom/opensource/commonsys/cryptfs_hw
@@ -68,6 +82,9 @@ TARGET_HW_DISK_ENCRYPTION := true
 PLATFORM_VERSION := 16.1.0
 PLATFORM_SECURITY_PATCH := 2099-12-31
 
+# GPT Utils
+BOARD_PROVIDES_GPTUTILS := true
+
 # Platform
 TARGET_BOARD_PLATFORM := msm8953
 TARGET_BOARD_PLATFORM_GPU := qcom-adreno506
@@ -75,15 +92,13 @@ TARGET_BOARD_PLATFORM_GPU := qcom-adreno506
 # Partitions
 BOARD_BOOTIMAGE_PARTITION_SIZE := 67108864
 BOARD_FLASH_BLOCK_SIZE := 262144
+AB_OTA_UPDATER := false
 
 # Recovery
 BOARD_HAS_LARGE_FILESYSTEM := true
 TARGET_RECOVERY_PIXEL_FORMAT := "RGBX_8888"
 TARGET_USERIMAGES_USE_EXT4 := true
 TARGET_USERIMAGES_USE_F2FS := true
-
-# System As Root
-BOARD_BUILD_SYSTEM_ROOT_IMAGE := true
 
 # TWRP Configuration
 RECOVERY_SDCARD_ON_DATA := true
@@ -102,8 +117,7 @@ TW_THEME := portrait_hdpi
 TW_USE_TOOLBOX := true
 TW_INCLUDE_REPACKTOOLS := true
 TW_HAS_EDL_MODE := true
-TW_Y_OFFSET := 80
-TW_H_OFFSET := -80
 
 # Workaround for error copying vendor files to recovery ramdisk
-TARGET_COPY_OUT_VENDOR := system/vendor
+BOARD_VENDORIMAGE_FILE_SYSTEM_TYPE := ext4
+TARGET_COPY_OUT_VENDOR := vendor
